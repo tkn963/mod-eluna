@@ -23,10 +23,7 @@
 #include <mutex>
 #include <memory>
 
-extern "C"
-{
-#include "lua.h"
-};
+#include "lua.hpp"
 
 #if defined(TRINITY) || AZEROTHCORE
 struct ItemTemplate;

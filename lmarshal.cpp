@@ -33,11 +33,8 @@
 #include <string.h>
 #include <cstdint>
 
-extern "C" {
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-}
+#include "lua.hpp"
+#include "compat-5.3.h"
 
 #define MAR_TREF 1
 #define MAR_TVAL 2
@@ -203,7 +200,7 @@ static void mar_encode_value(lua_State *L, mar_Buffer *buf, int val, size_t *idx
         }
         else {
             mar_Buffer rec_buf;
-            unsigned int i;
+            decltype(lua_Debug::nups) i;
             lua_Debug ar;
             lua_pop(L, 1); /* pop nil */
 
@@ -219,7 +216,7 @@ static void mar_encode_value(lua_State *L, mar_Buffer *buf, int val, size_t *idx
 
             lua_pushvalue(L, -1);
             buf_init(L, &rec_buf);
-            lua_dump(L, (lua_Writer)buf_write, &rec_buf);
+            lua_dump(L, (lua_Writer)buf_write, &rec_buf, NULL);
 
             buf_write(L, (const char*)&tag, MAR_CHR, buf);
             buf_write(L, (const char*)&rec_buf.head, MAR_I32, buf);

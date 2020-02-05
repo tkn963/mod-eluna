@@ -13,6 +13,7 @@
 #include "ElunaUtility.h"
 #include "ElunaCreatureAI.h"
 #include "ElunaInstanceAI.h"
+#include "compat-5.3.h"
 
 #if defined(TRINITY_PLATFORM) && defined(TRINITY_PLATFORM_WINDOWS)
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
@@ -44,15 +45,8 @@
 #include <ace/OS_NS_sys_stat.h>
 #endif
 
-extern "C"
-{
-// Base lua libraries
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-
-// Additional lua libraries
-};
+#include "lua.hpp"
+#include "compat-5.3.h"
 
 Eluna::ScriptList Eluna::lua_scripts;
 Eluna::ScriptList Eluna::lua_extensions;
@@ -650,7 +644,7 @@ void Eluna::Push(lua_State* luastate, const int i)
 }
 void Eluna::Push(lua_State* luastate, const unsigned int u)
 {
-    lua_pushunsigned(luastate, u);
+    lua_pushinteger(luastate, u);
 }
 void Eluna::Push(lua_State* luastate, const double d)
 {

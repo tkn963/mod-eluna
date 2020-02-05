@@ -4,10 +4,7 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-extern "C"
-{
-#include "lua.h"
-};
+#include "lua.hpp"
 
 // Eluna
 #include "LuaEngine.h"

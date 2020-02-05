@@ -7,15 +7,11 @@
 #ifndef _ELUNA_TEMPLATE_H
 #define _ELUNA_TEMPLATE_H
 
-extern "C"
-{
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-};
+#include "lua.hpp"
 #include "LuaEngine.h"
 #include "ElunaUtility.h"
 #include "SharedDefines.h"
+#include "compat-5.3.h"
 
 class ElunaGlobal
 {
