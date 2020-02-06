@@ -146,9 +146,12 @@ void Eluna::LoadScriptPaths()
     lua_folderpath_scripts = eConfigMgr->GetStringDefault("Eluna.ScriptPath", "lua_scripts");
     lua_folderpath_libs = eConfigMgr->GetStringDefault("Eluna.LibPath", "lua_libs");
 #ifndef ELUNA_WINDOWS
-    if (lua_folderpath[0] == '~')
+    if (lua_folderpath_scripts[0] == '~')
         if (const char* home = getenv("HOME"))
-            lua_folderpath.replace(0, 1, home);
+            lua_folderpath_scripts.replace(0, 1, home);
+    if (lua_folderpath_libs[0] == '~')
+        if (const char* home = getenv("HOME"))
+            lua_folderpath_libs.replace(0, 1, home);
 #endif
     ELUNA_LOG_INFO("[Eluna]: Searching libs from `%s`", lua_folderpath_libs.c_str());
     ELUNA_LOG_INFO("[Eluna]: Searching scripts from `%s`", lua_folderpath_scripts.c_str());
