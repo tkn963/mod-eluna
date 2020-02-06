@@ -135,9 +135,11 @@ private:
     static ScriptList lua_extensions;
 
     // Lua script folder path
-    static std::string lua_folderpath;
-    // lua path variable for require() function
-    static std::string lua_requirepath;
+    static std::string lua_folderpath_scripts;
+    static std::string lua_folderpath_libs;
+    // lua path variables for require() function
+    static std::string lua_requirepath_lua;
+    static std::string lua_requirepath_c;
 
     // A counter for lua event stacks that occur (see event_level).
     // This is used to determine whether an object belongs to the current call stack or not.

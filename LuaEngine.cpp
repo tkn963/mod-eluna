@@ -50,14 +50,56 @@
 
 Eluna::ScriptList Eluna::lua_scripts;
 Eluna::ScriptList Eluna::lua_extensions;
-std::string Eluna::lua_folderpath;
-std::string Eluna::lua_requirepath;
+std::string Eluna::lua_folderpath_scripts;
+std::string Eluna::lua_folderpath_libs;
+std::string Eluna::lua_requirepath_lua;
+std::string Eluna::lua_requirepath_c;
 Eluna* Eluna::GEluna = NULL;
 bool Eluna::reload = false;
 bool Eluna::initialized = false;
 Eluna::LockType Eluna::lock;
 
 extern void RegisterFunctions(Eluna* E);
+
+static std::string makerequirepath_lua_base(std::string const& path)
+{
+    return
+        path + "/lua/?.ext;" +
+        path + "/lua/?/init.ext;" +
+        path + "/?.ext;" +
+        path + "/?/init.ext;" +
+
+        path + "/lua/?.lua;" +
+        path + "/lua/?/init.lua;" +
+        path + "/?.lua;" +
+        path + "/?/init.lua";
+}
+static std::string makerequirepath_lua(std::string const& path)
+{
+    return
+        path + "/?.ext;" +
+        path + "/?.lua";
+}
+static std::string makerequirepath_c_base(std::string const& path)
+{
+#ifdef ELUNA_WINDOWS
+    return
+        path + "/?.dll;" +
+        path + "/loadall.dll";
+#else
+    return
+        path + "/?.so;" +
+        path + "/loadall.so";
+#endif
+}
+static std::string makerequirepath_c(std::string const & path)
+{
+#ifdef ELUNA_WINDOWS
+    return path + "/?.dll";
+#else
+    return path + "/?.so";
+#endif
+}
 
 void Eluna::Initialize()
 {
@@ -101,18 +143,21 @@ void Eluna::LoadScriptPaths()
     lua_scripts.clear();
     lua_extensions.clear();
 
-    lua_folderpath = eConfigMgr->GetStringDefault("Eluna.ScriptPath", "lua_scripts");
+    lua_folderpath_scripts = eConfigMgr->GetStringDefault("Eluna.ScriptPath", "lua_scripts");
+    lua_folderpath_libs = eConfigMgr->GetStringDefault("Eluna.LibPath", "lua_libs");
 #ifndef ELUNA_WINDOWS
     if (lua_folderpath[0] == '~')
         if (const char* home = getenv("HOME"))
             lua_folderpath.replace(0, 1, home);
 #endif
-    ELUNA_LOG_INFO("[Eluna]: Searching scripts from `%s`", lua_folderpath.c_str());
-    lua_requirepath.clear();
-    GetScripts(lua_folderpath);
-    // Erase last ;
-    if (!lua_requirepath.empty())
-        lua_requirepath.erase(lua_requirepath.end() - 1);
+    ELUNA_LOG_INFO("[Eluna]: Searching libs from `%s`", lua_folderpath_libs.c_str());
+    ELUNA_LOG_INFO("[Eluna]: Searching scripts from `%s`", lua_folderpath_scripts.c_str());
+    lua_requirepath_lua.clear();
+    lua_requirepath_c.clear();
+
+    lua_requirepath_lua = makerequirepath_lua_base(lua_folderpath_libs);
+    lua_requirepath_c = makerequirepath_c_base(lua_folderpath_libs);
+    GetScripts(lua_folderpath_scripts);
 
     ELUNA_LOG_DEBUG("[Eluna]: Loaded %u scripts in %u ms", uint32(lua_scripts.size() + lua_extensions.size()), ElunaUtil::GetTimeDiff(oldMSTime));
 }
@@ -232,9 +277,9 @@ void Eluna::OpenLua()
 
     // Set lua require folder paths (scripts folder structure)
     lua_getglobal(L, "package");
-    lua_pushstring(L, lua_requirepath.c_str());
+    lua_pushstring(L, lua_requirepath_lua.c_str());
     lua_setfield(L, -2, "path");
-    lua_pushstring(L, ""); // erase cpath
+    lua_pushstring(L, lua_requirepath_c.c_str());
     lua_setfield(L, -2, "cpath");
     lua_pop(L, 1);
 }
@@ -319,8 +364,13 @@ void Eluna::AddScriptPath(std::string filename, const std::string& fullpath)
     filename = filename.substr(0, extDot);
 
     // check extension and add path to scripts to load
-    if (ext != ".lua" && ext != ".dll" && ext != ".so" && ext != ".ext")
+#ifdef ELUNA_WINDOWS
+    if (ext != ".lua" && ext != ".dll" && ext != ".ext")
         return;
+#else
+    if (ext != ".lua" && ext != ".so" && ext != ".ext")
+        return;
+#endif
     bool extension = ext == ".ext";
 
     LuaScript script;
@@ -346,11 +396,8 @@ void Eluna::GetScripts(std::string path)
 
     if (boost::filesystem::exists(someDir) && boost::filesystem::is_directory(someDir))
     {
-        lua_requirepath +=
-            path + "/?.lua;" +
-            path + "/?.ext;" +
-            path + "/?.dll;" +
-            path + "/?.so;";
+        lua_requirepath_lua += ";" + makerequirepath_lua(path);
+        lua_requirepath_c += ";" + makerequirepath_c(path);
 
         for (boost::filesystem::directory_iterator dir_iter(someDir); dir_iter != end_iter; ++dir_iter)
         {
@@ -387,11 +434,8 @@ void Eluna::GetScripts(std::string path)
     if (dir.open(path.c_str()) == -1) // Error opening directory, return
         return;
 
-    lua_requirepath +=
-        path + "/?.lua;" +
-        path + "/?.ext;" +
-        path + "/?.dll;" +
-        path + "/?.so;";
+    lua_requirepath_lua += ";" + makerequirepath_lua(path);
+    lua_requirepath_c += ";" + makerequirepath_c(path);
 
     ACE_DIRENT *directory = 0;
     while ((directory = dir.read()))
