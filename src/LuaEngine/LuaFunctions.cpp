@@ -1056,6 +1056,8 @@ ElunaRegister<Quest> QuestMethods[] =
     { "GetNextQuestInChain", &LuaQuest::GetNextQuestInChain },
     { "GetFlags", &LuaQuest::GetFlags },
     { "GetType", &LuaQuest::GetType },
+    { "GetRewOrReqMoney", &LuaQuest::GetRewOrReqMoney },
+    { "GetRewMoneyMaxLevel", &LuaQuest::GetRewMoneyMaxLevel },
 
     // Boolean
     { "HasFlag", &LuaQuest::HasFlag },

@@ -183,5 +183,30 @@ namespace LuaQuest
         Eluna::Push(L, quest->GetMaxLevel());
         return 1;
     }*/
+
+    /*
+    * Returns the [Quest]'s rewarded or required money
+    *
+    * @param [Player] player : The player completing the quest
+    * 
+    * @return uint32 money
+    */
+    int GetRewOrReqMoney(lua_State* L, Quest* quest)
+    {
+        Player* player = Eluna::CHECKOBJ<Player>(L, 2);
+        Eluna::Push(L, quest->GetRewOrReqMoney(player->getLevel()));
+        return 1;
+    }
+
+    /*
+    * Returns the [Quest]'s rewarded money at max level
+    *
+    * @return uint32 money
+    */
+    int GetRewMoneyMaxLevel(lua_State* L, Quest* quest)
+    {
+        Eluna::Push(L, quest->GetRewMoneyMaxLevel());
+        return 1;
+    }
 };
 #endif

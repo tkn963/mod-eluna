@@ -474,6 +474,7 @@ public:
     void HandleGossipSelectOption(Player* pPlayer, uint32 menuId, uint32 sender, uint32 action, const std::string& code);
     void OnLearnSpell(Player* player, uint32 spellId);
     void OnAchiComplete(Player* player, AchievementEntry const* achievement);
+    void OnQuestComplete(Player* player, Quest const* quest);
 
 #ifndef CLASSIC
 #ifndef TBC

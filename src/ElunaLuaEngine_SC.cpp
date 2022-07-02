@@ -741,6 +741,11 @@ public:
     {
         sEluna->OnAchiComplete(player, achievement);
     }
+
+    void OnPlayerCompleteQuest(Player* player, Quest const* quest) override
+    {
+        sEluna->OnQuestComplete(player, quest);
+    }
 };
 
 class Eluna_ServerScript : public ServerScript
