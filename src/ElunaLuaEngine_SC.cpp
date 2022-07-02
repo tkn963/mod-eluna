@@ -736,6 +736,11 @@ public:
     {
         sEluna->OnLearnSpell(player, spellId);
     }
+
+    void OnPlayerCompleteQuest(Player* player, Quest const* quest) override
+    {
+        sEluna->OnQuestComplete(player, quest);
+    }
 };
 
 class Eluna_ServerScript : public ServerScript
